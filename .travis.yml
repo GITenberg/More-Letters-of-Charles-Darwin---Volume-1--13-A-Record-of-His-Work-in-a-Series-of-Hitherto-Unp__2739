@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: EX0i95hlBS1HmoHoFF6FArP1rKRXqI1ZT+WH498chqs/i5iu7Z8ps3ErO8Fe7ejUMbuz2slaTCnBonO28r2pCSQtxtJYA8US3UPNjQyNkooiijAwMEm9NxKHphBtCi/6bTrC5RsWoviTy9JTiOMHa2k6j3dLAu9NTl9WSJCku2ZVhgciGS9cmdt63E/kFgrO+HrBQfS548h1/utKsT240n249UY+Qm/6/bfF6wu4hR4LWLmU6dMTzerzYqa1rfFzOfhX+W6VkpOjjMwpX0h+TaYRNxuLnR4nSPiaru7jzhTGJ67Z0XA71CdU3vC4FIlPdgEgquhuvz78h+ZWqplCAJGsEwQ53KpvWmcJ2/lEpSNgdfithnecuJWXarfb+GkGLKX+ikcxzJITXBqr8Q2hYZ+4Y+630JodZuAVYODb3aarm9+mcMdZuONA5Dhuy9UkltTQ4mDbrRcFkbahZ2GiEjFEKRCOnhdC5WH4wmbMqkhNSNDKBQ3CZ1VWjOMzaBhEh+Av/kF2tFg43193E8KQ77HiBSRlhVfMW8+YSWt8//uexaU6Ghie2LfPwrYqwjtAmZ/wdmZp/SZn2k+3/S03Rd9fav6nuzmRT+uiKW+XdbRG1WqimtPMhNkcOy9fob1KMThJXHBzzWl9wCYRI+Jr4gKVkJYpBjiOfOCbzj4U3xA=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/More-Letters-of-Charles-Darwin---Volume-1--13-A-Record-of-His-Work-in-a-Series-of-Hitherto-Unp__2739
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
